@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=1.1.0">
 </head>
 <body>
 
@@ -97,6 +97,12 @@
         <span class="form-error hidden" id="reg-error-msg"></span>
         <button type="submit" class="btn btn-primary btn-full">Crear Cuenta y Entrar 🎉</button>
       </form>
+
+      <!-- Banner para descargar App de PC -->
+      <div class="auth-download-banner" id="auth-download-banner">
+        <span class="auth-download-text">🎙️ ¿Mejor audio y cero permisos en el navegador?</span>
+        <a id="btn-login-download" href="/descargar" target="_blank" class="btn-download-pill" style="text-decoration:none; display:inline-block;">💻 Descargar App PC</a>
+      </div>
     </div>
   </div>
 
@@ -114,6 +120,7 @@
           </div>
         </div>
         <div class="server-header-actions">
+          <a id="btn-header-download" href="/descargar" target="_blank" class="btn-top-download" title="Descargar App para PC (Windows)" style="text-decoration:none;">💻 Descargar App PC</a>
           <button id="btn-invite" class="btn-invite-top" title="Invitar Amigos">🔗 Invitar</button>
           <button id="btn-admin-panel" class="btn-icon" title="Acceso de Administrador">
             <span class="crown-icon">👑</span>
@@ -188,8 +195,49 @@
         </div>
       </header>
 
+      <!-- Banner de Notificación de Actualización en Vivo -->
+      <div id="update-notification-banner" class="update-notification-banner hidden">
+        <div class="update-banner-content">
+          <span class="update-rocket-icon">🚀</span>
+          <div class="update-text-group">
+            <span class="update-title"><strong>¡Nueva actualización disponible!</strong> <span id="update-version-label" class="update-version-badge">v1.1.0</span></span>
+            <span class="update-subtitle">Mejoras listas: Tarjetas con Nicks Gigantes, Menú Clic Derecho y Rol Caller.</span>
+          </div>
+        </div>
+        <div class="update-actions">
+          <button id="btn-update-reload" class="btn-update-now" title="Recargar la aplicación para aplicar mejoras">⚡ Actualizar Ahora</button>
+          <a id="btn-update-download" href="/descargar" target="_blank" class="btn-update-link hidden">💾 Descargar .exe</a>
+          <button id="btn-update-dismiss" class="btn-update-close" title="Cerrar">&times;</button>
+        </div>
+      </div>
+
       <div id="mic-perm-banner" class="mic-alert-banner hidden">
-        ⚠️ <strong>Modo Solo Escuchar:</strong> Si deseas hablar, permite el acceso al micrófono en el icono del candado 🔒 del navegador y pulsa el botón del micrófono.
+        ⚠️ <strong>Modo Solo Escuchar:</strong> Si tienes problemas con el permiso de micrófono en tu navegador, te recomendamos la <strong>App de Escritorio</strong>: <a id="btn-banner-download" href="/descargar" target="_blank" class="btn-download-inline" style="text-decoration:none; display:inline-block;">💻 Descargar App PC</a>
+      </div>
+
+      <!-- Banner de Transmisión Global de Caller -->
+      <div id="caller-broadcast-banner" class="caller-broadcast-banner hidden">
+        <span class="caller-anim-icon">📢⚡</span>
+        <div class="caller-banner-text">
+          <strong id="caller-banner-name">Caller</strong> está transmitiendo su voz a <strong>todos los canales</strong>.
+        </div>
+      </div>
+
+      <!-- Escenario Visual de Sala de Voz (Voice Stage con Nicks Claros) -->
+      <div id="voice-stage" class="voice-stage hidden">
+        <div class="voice-stage-header">
+          <div class="voice-stage-title">
+            <span class="voice-live-dot"></span>
+            <span id="voice-stage-channel-name">SALA DE VOZ</span>
+            <span class="voice-stage-count" id="voice-stage-count">0 participantes</span>
+          </div>
+          <div class="voice-stage-tip">
+            💡 <em>Clic derecho sobre cualquier participante para silenciarlo, ajustar volumen o asignar rol</em>
+          </div>
+        </div>
+        <div class="voice-stage-grid" id="voice-stage-grid">
+          <!-- Tarjetas de participantes generadas dinámicamente con Nicks bien visibles -->
+        </div>
       </div>
 
       <div class="messages-container" id="messages-container"></div>
@@ -239,18 +287,29 @@
           <h4>VÚMETRO & PUERTA DE RUIDO (NOISE GATE)</h4>
           <p class="settings-subtext">Habla ahora para calibrar tu micrófono. El audio solo se transmitirá cuando la barra verde supere la marca de umbral.</p>
           
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="select-mic-device" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Dispositivo de Micrófono</label>
+            <select id="select-mic-device" style="width: 100%; background: var(--bg-surface); color: var(--text-normal); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px 8px; font-size: 13px;">
+              <option value="">Cargando micrófonos detectados...</option>
+            </select>
+          </div>
+
           <div class="mic-meter-container">
             <div class="mic-meter-bar" id="mic-meter-bar" style="width: 0%;"></div>
-            <div class="mic-meter-threshold-line" id="mic-meter-threshold-line" style="left: 18%;"></div>
+            <div class="mic-meter-threshold-line" id="mic-meter-threshold-line" style="left: 5%;"></div>
           </div>
 
           <div class="form-group" style="margin-top: 10px;">
             <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
               <span>Sensibilidad / Puerta de Ruido</span>
-              <strong id="val-noise-gate">18%</strong>
+              <strong id="val-noise-gate">5%</strong>
             </div>
-            <input type="range" id="slider-noise-gate" min="1" max="80" value="18" class="settings-slider">
+            <input type="range" id="slider-noise-gate" min="1" max="80" value="5" class="settings-slider">
           </div>
+
+          <button type="button" id="btn-test-mic-loopback" class="btn btn-secondary btn-full" style="margin-top: 10px; font-size: 12px;">
+            🎧 Probar Micrófono (Escuchar mi propia voz)
+          </button>
         </div>
 
         <!-- 2. Modo de Transmisión (VAD vs Push-to-Talk) -->
@@ -315,30 +374,30 @@
     </div>
   </div>
 
-  <!-- MODAL: Guía de Permiso de Micrófono -->
+  <!-- MODAL: Guía de Conexión de Micrófono -->
   <div id="modal-mic-guide" class="overlay">
     <div class="modal mic-guide-modal">
       <div class="modal-header">
-        <div class="guide-icon">🎙️🔒</div>
-        <h3>Permiso de Micrófono</h3>
+        <div class="guide-icon">🎧🎙️</div>
+        <h3>Micrófono No Detectado</h3>
         <button class="btn-close-modal" id="btn-close-mic-guide">&times;</button>
       </div>
       <div class="mic-guide-body">
-        <p style="color: var(--text-normal); font-size: 14px; margin-bottom: 14px;">Tu navegador no tiene activo el permiso de micrófono. Sigue estos 2 pasos para activarlo:</p>
+        <p style="color: var(--text-normal); font-size: 14px; margin-bottom: 14px;">No se detecta un micrófono conectado a tu computadora. Sigue estos pasos para solucionarlo:</p>
         <div class="guide-step">
           <div class="step-num">1</div>
           <div class="step-desc">
-            En la <strong>barra de direcciones (URL)</strong> arriba en tu navegador, haz clic en el <strong>Candado 🔒</strong> o icono de configuración del sitio.
+            Conecta tus <strong>auriculares con micrófono</strong> o micrófono USB firmemente a tu equipo.
           </div>
         </div>
         <div class="guide-step">
           <div class="step-num">2</div>
           <div class="step-desc">
-            Cambia la opción de <strong>Micrófono</strong> a <strong>"Permitir" (Allow)</strong>.
+            Verifica que el micrófono no tenga el interruptor físico de silencio activado y que Windows lo reconozca en Sonido.
           </div>
         </div>
         <div class="guide-note">
-          💡 <em>Recuerda: Si estás en modo oyente, puedes seguir escuchando a todos con total normalidad mientras lo activas.</em>
+          💡 <em>Recuerda: Si estás en modo oyente, puedes seguir escuchando a todos con total normalidad.</em>
         </div>
         <button type="button" class="btn btn-primary btn-full" id="btn-retry-mic">Reintentar Conectar Micrófono 🎙️</button>
       </div>
@@ -446,10 +505,137 @@
     </div>
   </div>
 
+  <!-- MODAL: Descargar App de Escritorio PC -->
+  <div id="modal-download-app" class="overlay">
+    <div class="modal download-app-modal">
+      <div class="modal-header">
+        <div class="logo-icon">💻🚀</div>
+        <h3>Special Delivery Speak para PC</h3>
+        <button class="btn-close-modal" id="btn-close-download-modal">&times;</button>
+      </div>
+      <div class="download-modal-body">
+        <div class="download-features-grid">
+          <div class="download-feature-card">
+            <span class="feature-icon">🎙️</span>
+            <div>
+              <strong>Cero Permisos de Micrófono</strong>
+              <p>Funciona directo desde Windows sin pedir permisos ni bloqueos en navegadores.</p>
+            </div>
+          </div>
+          <div class="download-feature-card">
+            <span class="feature-icon">⚡</span>
+            <div>
+              <strong>Máximo Rendimiento Gamer</strong>
+              <p>Latencia ultra baja para comunicarte con tu party mientras juegas sin caídas de FPS.</p>
+            </div>
+          </div>
+          <div class="download-feature-card">
+            <span class="feature-icon">🎧</span>
+            <div>
+              <strong>Audio Nativo con Sonidos Discord</strong>
+              <p>Timbre auténtico de Discord al conectar, desconectar y recibir mensajes.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="download-action-area">
+          <a id="btn-direct-download" href="https://drive.google.com/file/d/1ZEyR_z44AheeCNDIkMlFmLbSp9jPqtGI/view?usp=sharing" class="btn btn-download-giant" target="_blank" rel="noopener noreferrer">
+            <span class="giant-icon">📥</span>
+            <span class="giant-text">
+              <span class="giant-title">Descargar Instalador para Windows (.exe)</span>
+              <span class="giant-subtitle" id="download-filesize-info">Instalador oficial directo • 1 Solo Archivo</span>
+            </span>
+          </a>
+          <p id="download-link-notice" class="download-link-notice hidden">⚠️ Pídele el link de descarga directa al anfitrión o usa el enlace configurado.</p>
+        </div>
+
+        <div class="download-instructions">
+          <h4>🚀 ¿Cómo se instala en 2 pasos?</h4>
+          <div class="steps-compact" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="step-compact-item">
+              <span class="step-badge">1</span>
+              <span>Descarga <strong>SpecialDeliverySpeak-Instalador.exe</strong></span>
+            </div>
+            <div class="step-compact-item">
+              <span class="step-badge">2</span>
+              <span>Doble clic para instalar ¡y a jugar!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de Configuración de Link para el Master Admin -->
+        <div id="admin-download-config-area" class="admin-download-config hidden">
+          <div class="admin-config-box">
+            <label for="input-download-url">👑 Configurar enlace de descarga (Google Drive, Mediafire, etc.):</label>
+            <div class="input-inline-btn">
+              <input type="url" id="input-download-url" placeholder="https://drive.google.com/file/d/... o Mediafire">
+              <button type="button" class="btn btn-primary" id="btn-save-download-url">Guardar Link</button>
+            </div>
+            <span id="download-url-feedback" class="feedback-msg hidden">¡Enlace guardado con éxito! 🎉</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- MENÚ CONTEXTUAL FLOTANTE (CLIC DERECHO) -->
+  <div id="user-context-menu" class="context-menu hidden">
+    <div class="context-menu-header">
+      <div class="context-user-avatar" id="ctx-user-avatar">📦</div>
+      <div class="context-user-info">
+        <span class="context-username" id="ctx-username">Usuario</span>
+        <span class="context-user-role" id="ctx-user-role">Miembro</span>
+      </div>
+    </div>
+    <div class="context-menu-divider"></div>
+    
+    <!-- Slider de volumen personal -->
+    <div class="context-menu-item-slider" id="ctx-vol-container">
+      <div class="ctx-slider-label">
+        <span>🔊 Volumen Personal</span>
+        <span id="ctx-vol-val">100%</span>
+      </div>
+      <input type="range" id="ctx-vol-slider" min="0" max="2" step="0.05" value="1">
+    </div>
+
+    <div class="context-menu-divider admin-ctx-item"></div>
+
+    <!-- Acciones de Administración y Roles -->
+    <button type="button" class="context-menu-item admin-ctx-item" id="ctx-btn-mute">
+      <span class="ctx-icon" id="ctx-mute-icon">🎙️🚫</span>
+      <span class="ctx-text" id="ctx-mute-text">Silenciar en Servidor</span>
+    </button>
+
+    <button type="button" class="context-menu-item admin-ctx-item" id="ctx-btn-caller">
+      <span class="ctx-icon">📢⚡</span>
+      <span class="ctx-text" id="ctx-caller-text">Asignar Rol: CALLER (Voz Global)</span>
+    </button>
+
+    <button type="button" class="context-menu-item master-ctx-item" id="ctx-btn-promote">
+      <span class="ctx-icon">👑</span>
+      <span class="ctx-text" id="ctx-promote-text">Hacer Administrador</span>
+    </button>
+
+    <div class="context-menu-divider admin-ctx-item"></div>
+
+    <button type="button" class="context-menu-item admin-ctx-item danger" id="ctx-btn-kick-voice">
+      <span class="ctx-icon">👢</span>
+      <span>Desconectar de la Voz</span>
+    </button>
+
+    <button type="button" class="context-menu-item admin-ctx-item danger" id="ctx-btn-kick-server">
+      <span class="ctx-icon">🚪</span>
+      <span>Expulsar del Servidor</span>
+    </button>
+
+    <button type="button" class="context-menu-item master-ctx-item danger" id="ctx-btn-ban">
+      <span class="ctx-icon">🚫</span>
+      <span>Banear Permanentemente</span>
+    </button>
+  </div>
+
   <!-- Scripts -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="js/webrtc.js"></script>
-  <script src="js/admin.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/webrtc.js?v=1.1.0"></script>
+  <script src="js/admin.js?v=1.1.0"></script>
+  <script src="js/app.js?v=1.1.0"></script>
 </body>
 </html>
